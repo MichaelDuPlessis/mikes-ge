@@ -1,10 +1,7 @@
 pub trait Grammer {
     type Input;
-    // this specifies that the output has to be of some kind of float
-    //
-    // This should change later so that Output must instead implement some custom type that
-    // specifies a method that returns a float this is because Output need not necessarily be a
-    // float
+    // this means that the output must have some method that returns a float this is so that we are
+    // able to determine how far it is from the goal
     type Output: Distance;
 
     fn run(&self, input: &Self::Input) -> Self::Output;
