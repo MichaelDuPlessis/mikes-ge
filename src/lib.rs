@@ -1,50 +1,72 @@
-use rand::{self, Rng};
+use crate::ge::GE;
+use grammer::Grammer;
 
-struct GE {
-    size: usize,
-    weights: (f32, f32, f32),
-    min_len: usize,
-    max_len: usize,
-    generations: usize,
-    runs: usize,
-    population: Vec<Vec<u8>>,
+mod ge;
+mod grammer;
+
+enum Expr {
+    Add(Box<Expr>, Box<Expr>),
+    Sub(Box<Expr>, Box<Expr>),
+    X,
+    Y,
 }
 
-impl GE {
-    fn new(
-        size: usize,
-        weights: (f32, f32, f32),
-        min_len: usize,
-        max_len: usize,
-        generations: usize,
-        runs: usize,
-    ) -> Self {
-        assert!(min_len < max_len);
+impl Grammer for Expr {
+    type Input = (usize, usize);
+    type Output = usize;
 
-        let population = Self::generate_initial_population(size, min_len, max_len);
-
-        Self {
-            size,
-            weights,
-            min_len,
-            max_len,
-            generations,
-            runs,
-            population,
+    fn run(self, input: Self::Input) -> Self::Output {
+        match self {
+            Expr::Add(expr1, expr2) => expr1.run(input) + expr2.run(input),
+            Expr::Sub(expr1, expr2) => expr1.run(input) - expr2.run(input),
+            Expr::X => input.0,
+            Expr::Y => input.1,
         }
     }
 
-    fn generate_individual(min_len: usize, max_len: usize) -> Vec<u8> {
-        let len = rand::thread_rng().gen_range(min_len..=max_len);
-        let individual = (0..len).map(|_| rand::random::<u8>()).collect();
-        individual
+    fn generate(chromosome: &Vec<u8>) -> Self {
+        Self::generate_helper(&mut 0, chromosome)
     }
+}
 
-    fn generate_initial_population(size: usize, min_len: usize, max_len: usize) -> Vec<Vec<u8>> {
-        let mut population = Vec::with_capacity(size);
-        for _ in 0..size {
-            population.push(Self::generate_individual(min_len, max_len));
+impl Expr {
+    fn generate_helper(pos: &mut usize, chromosome: &Vec<u8>) -> Self {
+        let p = *pos % chromosome.len();
+        if *pos / chromosome.len() > 3 {
+            let terminal = if chromosome[p] % 2 == 0 {
+                Self::X
+            } else {
+                Self::Y
+            };
+
+            *pos += 1;
+            return terminal;
         }
-        population
+
+        *pos += 1;
+        match chromosome[p] % 4 {
+            0 => Self::Add(
+                Box::new(Self::generate_helper(pos, chromosome)),
+                Box::new(Self::generate_helper(pos, chromosome)),
+            ),
+            1 => Self::Sub(
+                Box::new(Self::generate_helper(pos, chromosome)),
+                Box::new(Self::generate_helper(pos, chromosome)),
+            ),
+            2 => Self::X,
+            3 => Self::Y,
+            _ => panic!("Cannot get here"),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test() {
+        let expr = Expr::Add(Box::new(Expr::X), Box::new(Expr::Y));
+        assert_eq!(5, expr.run((2, 3)));
     }
 }
