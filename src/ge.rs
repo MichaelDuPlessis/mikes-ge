@@ -1,29 +1,43 @@
+use crate::grammer::{Distance, Grammer};
 use rand::{self, Rng};
 
-use crate::grammer::Grammer;
+// my types
+type Chromosome = Vec<u8>;
 
-pub struct GE {
+pub struct GE<I, O, G>
+where
+    G: Grammer<Input = I, Output = O>,
+    O: Distance,
+{
     size: usize,
     weights: (f32, f32, f32),
     min_len: usize,
     max_len: usize,
     generations: usize,
     runs: usize,
-    population: Vec<Vec<u8>>,
+    train: Vec<(I, O)>,
+    grammer: G,
+    population: Vec<Chromosome>,
 }
 
-impl GE {
+impl<I, O, G> GE<I, O, G>
+where
+    G: Grammer<Input = I, Output = O>,
+    O: Distance,
+{
     pub fn new(
         size: usize,
         weights: (f32, f32, f32),
         min_len: usize,
         max_len: usize,
         generations: usize,
+        train: Vec<(I, O)>,
+        grammer: G,
         runs: usize,
     ) -> Self {
         assert!(min_len < max_len);
+        assert!(weights.0 + weights.1 + weights.2 == 1.0);
 
-        let population = Self::generate_initial_population(size, min_len, max_len);
         Self {
             size,
             weights,
@@ -31,25 +45,52 @@ impl GE {
             max_len,
             generations,
             runs,
-            population,
+            train,
+            grammer,
+            population: Vec::with_capacity(size),
         }
     }
 
-    fn generate_individual(min_len: usize, max_len: usize) -> Vec<u8> {
-        let len = rand::thread_rng().gen_range(min_len..=max_len);
+    // ====================================================================
+    // creating the initial population
+    fn generate_individual(&mut self) {
+        let len = rand::thread_rng().gen_range(self.min_len..=self.max_len);
         let individual = (0..len).map(|_| rand::random::<u8>()).collect();
-        individual
+        self.population.push(individual);
     }
 
-    fn generate_initial_population(size: usize, min_len: usize, max_len: usize) -> Vec<Vec<u8>> {
-        let mut population = Vec::with_capacity(size);
-        for _ in 0..size {
-            population.push(Self::generate_individual(min_len, max_len));
+    fn generate_initial_population(&mut self) {
+        self.population.clear();
+        for _ in 0..self.size {
+            self.generate_individual();
         }
-        population
     }
 
-    pub fn start<I, O, F: Fn(I) -> O>(&self, grammer: impl Grammer<Input = I, Output = O>) -> F {
+    // ====================================================================
+    // everything for creating a new population
+
+    fn raw_fitness(&self, chromosome: &Chromosome) {
+        let individual = G::generate(&chromosome);
+        let res: f64 = self
+            .train
+            .iter()
+            .map(|(input, expected)| (expected.distance(&individual.run(input))).abs())
+            .sum();
+    }
+
+    fn generate_next_population(&mut self) {}
+
+    pub fn start<F: Fn(I) -> O>(&mut self) -> F {
+        for r in 0..self.runs {
+            // set seed here
+
+            self.generate_initial_population();
+
+            for g in 0..self.generations {
+                self.generate_next_population();
+            }
+        }
+
         todo!()
     }
 }

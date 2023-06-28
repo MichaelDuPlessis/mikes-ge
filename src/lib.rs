@@ -15,7 +15,7 @@ impl Grammer for Expr {
     type Input = (usize, usize);
     type Output = usize;
 
-    fn run(self, input: Self::Input) -> Self::Output {
+    fn run(&self, input: &Self::Input) -> Self::Output {
         match self {
             Expr::Add(expr1, expr2) => expr1.run(input) + expr2.run(input),
             Expr::Sub(expr1, expr2) => expr1.run(input) - expr2.run(input),
@@ -67,6 +67,6 @@ mod tests {
     #[test]
     fn test() {
         let expr = Expr::Add(Box::new(Expr::X), Box::new(Expr::Y));
-        assert_eq!(5, expr.run((2, 3)));
+        assert_eq!(5, expr.run(&(2, 3)));
     }
 }
