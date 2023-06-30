@@ -1,5 +1,7 @@
+use std::collections::HashMap;
+
 use crate::grammer::{Distance, Grammer};
-use rand::{self, Rng};
+use rand::{self, seq::SliceRandom, Rng};
 
 // my types
 type Chromosome = Vec<u8>;
@@ -14,6 +16,7 @@ where
     min_len: usize,
     max_len: usize,
     generations: usize,
+    tournament: usize, // tournament size
     runs: usize,
     train: Vec<(I, O)>,
     grammer: G,
@@ -31,9 +34,10 @@ where
         min_len: usize,
         max_len: usize,
         generations: usize,
+        tournament: usize,
+        runs: usize,
         train: Vec<(I, O)>,
         grammer: G,
-        runs: usize,
     ) -> Self {
         assert!(min_len < max_len);
         assert!(weights.0 + weights.1 + weights.2 == 1.0);
@@ -44,6 +48,7 @@ where
             min_len,
             max_len,
             generations,
+            tournament,
             runs,
             train,
             grammer,
@@ -69,16 +74,44 @@ where
     // ====================================================================
     // everything for creating a new population
 
-    fn raw_fitness(&self, chromosome: &Chromosome) {
+    fn raw_fitness(&self, chromosome: &Chromosome) -> f64 {
         let individual = G::generate(&chromosome);
-        let res: f64 = self
-            .train
+        self.train
             .iter()
             .map(|(input, expected)| (expected.distance(&individual.run(input))).abs())
-            .sum();
+            .sum()
     }
 
-    fn generate_next_population(&mut self) {}
+    // performs tournament selection on the population and returns the index of the chosen individual
+    fn tournament_selection(&self, cache: &mut HashMap<&Chromosome, f64>) -> &Chromosome {
+        self.population
+            .choose_multiple(&mut rand::thread_rng(), self.tournament)
+            .max_by(|c1, c2| {
+                let f1 = if let Some(f) = cache.get(c1) {
+                    *f
+                } else {
+                    let f = self.raw_fitness(c1);
+                    cache.insert(c1, f);
+                    f
+                };
+                let f2 = if let Some(f) = cache.get(c2) {
+                    *f
+                } else {
+                    let f = self.raw_fitness(c2);
+                    cache.insert(c2, f);
+                    f
+                };
+
+                f1.total_cmp(&f2)
+            })
+            .unwrap()
+    }
+
+    fn generate_next_population(&mut self) {
+        // TODO: change to with_capacity when a good strategy for figuring out what the capcity
+        // will be
+        let cache = HashMap::new();
+    }
 
     pub fn start<F: Fn(I) -> O>(&mut self) -> F {
         for r in 0..self.runs {
