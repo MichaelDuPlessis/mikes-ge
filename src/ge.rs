@@ -1,7 +1,6 @@
-use std::collections::HashMap;
-
 use crate::grammer::{Distance, Grammer};
 use rand::{self, seq::SliceRandom, Rng};
+use std::collections::HashMap;
 
 // my types
 type Chromosome = Vec<u8>;
@@ -83,7 +82,10 @@ where
     }
 
     // performs tournament selection on the population and returns the index of the chosen individual
-    fn tournament_selection(&self, cache: &mut HashMap<&Chromosome, f64>) -> &Chromosome {
+    fn tournament_selection<'a>(
+        &'a self,
+        cache: &mut HashMap<&'a Chromosome, f64>,
+    ) -> &'a Chromosome {
         self.population
             .choose_multiple(&mut rand::thread_rng(), self.tournament)
             .max_by(|c1, c2| {
@@ -110,7 +112,54 @@ where
     fn generate_next_population(&mut self) {
         // TODO: change to with_capacity when a good strategy for figuring out what the capcity
         // will be
-        let cache = HashMap::new();
+        let mut cache = HashMap::new();
+        let mut new_population = Vec::with_capacity(self.size);
+
+        for _ in 0..(self.size as f32 * self.weights.0) as usize {
+            let (c1, c2) = self.crossover(
+                self.tournament_selection(&mut cache),
+                self.tournament_selection(&mut cache),
+            );
+
+            new_population.push(c1);
+            new_population.push(c2);
+        }
+    }
+
+    // ====================================================================
+    // genetic operators
+    fn crossover(
+        &self,
+        chromosome1: &Chromosome,
+        chromosome2: &Chromosome,
+    ) -> (Chromosome, Chromosome) {
+        let (chromosome1, chromosome2) = if chromosome2.len() < chromosome1.len() {
+            (chromosome2, chromosome1)
+        } else {
+            (chromosome1, chromosome2)
+        };
+
+        let point1: usize = rand::random::<usize>() % chromosome1.len();
+        let point2: usize = rand::random::<usize>() % chromosome2.len();
+        let (point1, point2) = (point1.min(point2), point1.max(point2));
+
+        let c1_len = point1 + (point2 - point1) + (chromosome1.len() - point2);
+        let c2_len = point1 + (point2 - point1) + (chromosome2.len() - point2);
+
+        let mut new_c1 = Vec::with_capacity(c1_len);
+        let mut new_c2 = Vec::with_capacity(c2_len);
+
+        // create first new chromosome
+        new_c1.extend_from_slice(&chromosome1[..point1]);
+        new_c1.extend_from_slice(&chromosome2[point1..point2]);
+        new_c1.extend_from_slice(&chromosome1[point2..]);
+
+        // create second new chromosome
+        new_c2.extend_from_slice(&chromosome2[..point1]);
+        new_c1.extend_from_slice(&chromosome1[point1..point2]);
+        new_c1.extend_from_slice(&chromosome2[point2..]);
+
+        (new_c1, new_c2)
     }
 
     pub fn start<F: Fn(I) -> O>(&mut self) -> F {
