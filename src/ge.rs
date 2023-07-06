@@ -74,7 +74,7 @@ where
     // everything for creating a new population
 
     fn raw_fitness(&self, chromosome: &Chromosome) -> f64 {
-        let individual = G::generate(&chromosome);
+        let individual = G::generate(chromosome);
         self.train
             .iter()
             .map(|(input, expected)| (expected.distance(&individual.run(input))).abs())
@@ -124,6 +124,26 @@ where
             new_population.push(c1);
             new_population.push(c2);
         }
+
+        for _ in 0..(self.size as f32 * self.weights.1) as usize {
+            let c = self.mutation(self.tournament_selection(&mut cache));
+
+            new_population.push(c);
+        }
+
+        for _ in 0..(self.size as f32 * self.weights.2) as usize {
+            let c = self.tournament_selection(&mut cache).clone();
+
+            new_population.push(c);
+        }
+
+        while new_population.len() < self.size {
+            let c = self.tournament_selection(&mut cache).clone();
+
+            new_population.push(c);
+        }
+
+        self.population = new_population;
     }
 
     // ====================================================================
@@ -160,6 +180,13 @@ where
         new_c1.extend_from_slice(&chromosome2[point2..]);
 
         (new_c1, new_c2)
+    }
+
+    fn mutation(&self, chromosome: &Chromosome) -> Chromosome {
+        let mut chromosome = chromosome.clone();
+
+        *chromosome.choose_mut(&mut rand::thread_rng()).unwrap() = rand::random();
+        chromosome
     }
 
     pub fn start<F: Fn(I) -> O>(&mut self) -> F {
