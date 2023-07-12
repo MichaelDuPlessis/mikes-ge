@@ -189,7 +189,7 @@ where
         chromosome
     }
 
-    pub fn start<F: Fn(I) -> O>(&mut self) -> F {
+    pub fn start(&mut self) -> Chromosome {
         for r in 0..self.runs {
             // set seed here
 
@@ -200,6 +200,12 @@ where
             }
         }
 
-        todo!()
+        let best = self
+            .population
+            .iter()
+            .max_by(|x, y| self.raw_fitness(x).total_cmp(&self.raw_fitness(y)))
+            .unwrap();
+
+        best.clone()
     }
 }
