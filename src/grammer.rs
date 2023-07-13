@@ -14,14 +14,86 @@ pub trait Distance {
     fn distance(&self, other: &Self) -> f64;
 }
 
-// implementation for standard library types
+// this sucks so much I want specialization
+impl Distance for usize {
+    fn distance(&self, other: &Self) -> f64 {
+        (self - other) as f64
+    }
+}
+
+impl Distance for u128 {
+    fn distance(&self, other: &Self) -> f64 {
+        (self - other) as f64
+    }
+}
+
+impl Distance for u64 {
+    fn distance(&self, other: &Self) -> f64 {
+        (self - other) as f64
+    }
+}
+
+impl Distance for u32 {
+    fn distance(&self, other: &Self) -> f64 {
+        (self - other) as f64
+    }
+}
+
+impl Distance for u16 {
+    fn distance(&self, other: &Self) -> f64 {
+        (self - other) as f64
+    }
+}
+
+impl Distance for u8 {
+    fn distance(&self, other: &Self) -> f64 {
+        (self - other) as f64
+    }
+}
+
+impl Distance for i128 {
+    fn distance(&self, other: &Self) -> f64 {
+        (self - other) as f64
+    }
+}
+
+impl Distance for isize {
+    fn distance(&self, other: &Self) -> f64 {
+        (self - other) as f64
+    }
+}
+
+impl Distance for i64 {
+    fn distance(&self, other: &Self) -> f64 {
+        (self - other) as f64
+    }
+}
+
+impl Distance for i32 {
+    fn distance(&self, other: &Self) -> f64 {
+        (self - other) as f64
+    }
+}
+
+impl Distance for i16 {
+    fn distance(&self, other: &Self) -> f64 {
+        (self - other) as f64
+    }
+}
+
+impl Distance for i8 {
+    fn distance(&self, other: &Self) -> f64 {
+        (self - other) as f64
+    }
+}
+
 impl Distance for f64 {
     fn distance(&self, other: &Self) -> f64 {
         self - other
     }
 }
 
-impl Distance for usize {
+impl Distance for f32 {
     fn distance(&self, other: &Self) -> f64 {
         (self - other) as f64
     }

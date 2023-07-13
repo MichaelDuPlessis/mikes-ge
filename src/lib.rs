@@ -1,8 +1,7 @@
-use crate::ge::GE;
-use grammer::Grammer;
-
 mod ge;
 mod grammer;
+
+use grammer::Grammer;
 
 enum Expr {
     Add(Box<Expr>, Box<Expr>),
