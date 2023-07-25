@@ -6,7 +6,7 @@ pub trait Grammer {
 
     fn run(&self, input: &Self::Input) -> Self::Output;
 
-    fn generate(chromosome: &Vec<u8>) -> Self;
+    fn generate(chromosome: impl AsRef<[u8]>) -> Self;
 }
 
 // use when calculating fitness

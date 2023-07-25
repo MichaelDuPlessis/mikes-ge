@@ -159,7 +159,7 @@ where
         };
 
         let point1: usize = rand::random::<usize>() % chromosome1.len();
-        let point2: usize = rand::random::<usize>() % chromosome2.len();
+        let point2: usize = rand::random::<usize>() % chromosome1.len();
         let (point1, point2) = (point1.min(point2), point1.max(point2));
 
         let c1_len = point1 + (point2 - point1) + (chromosome1.len() - point2);
@@ -175,8 +175,8 @@ where
 
         // create second new chromosome
         new_c2.extend_from_slice(&chromosome2[..point1]);
-        new_c1.extend_from_slice(&chromosome1[point1..point2]);
-        new_c1.extend_from_slice(&chromosome2[point2..]);
+        new_c2.extend_from_slice(&chromosome1[point1..point2]);
+        new_c2.extend_from_slice(&chromosome2[point2..]);
 
         (new_c1, new_c2)
     }
@@ -189,12 +189,14 @@ where
     }
 
     pub fn start(&mut self) -> Chromosome {
-        for r in 0..self.runs {
+        for _r in 0..self.runs {
             // set seed here
 
             self.generate_initial_population();
 
-            for g in 0..self.generations {
+            // println!("{:?}", self.population);
+
+            for _g in 0..self.generations {
                 self.generate_next_population();
             }
         }
