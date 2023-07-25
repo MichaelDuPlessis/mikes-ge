@@ -1,5 +1,5 @@
-mod ge;
-mod grammer;
+pub mod ge;
+pub mod grammer;
 
 use grammer::Grammer;
 
