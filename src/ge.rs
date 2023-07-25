@@ -1,6 +1,6 @@
 use crate::grammer::{Distance, Grammer};
 use rand::{self, seq::SliceRandom, Rng};
-use std::collections::HashMap;
+use std::{collections::HashMap, marker::PhantomData};
 
 // my types
 type Chromosome = Vec<u8>;
@@ -18,8 +18,8 @@ where
     tournament: usize, // tournament size
     runs: usize,
     train: Vec<(I, O)>,
-    grammer: G,
     population: Vec<Chromosome>,
+    _grammer: PhantomData<G>,
 }
 
 impl<I, O, G> GE<I, O, G>
@@ -36,7 +36,6 @@ where
         tournament: usize,
         runs: usize,
         train: Vec<(I, O)>,
-        grammer: G,
     ) -> Self {
         assert!(min_len < max_len);
         assert!(weights.0 + weights.1 + weights.2 == 1.0);
@@ -50,8 +49,8 @@ where
             tournament,
             runs,
             train,
-            grammer,
             population: Vec::with_capacity(size),
+            _grammer: PhantomData,
         }
     }
 
