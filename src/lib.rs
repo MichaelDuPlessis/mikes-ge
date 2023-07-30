@@ -33,7 +33,7 @@ impl Grammer for Expr {
         }
     }
 
-    fn generate(chromosome: impl AsRef<[u8]>) -> Self {
+    fn generate(chromosome: &[u8]) -> Self {
         Self::generate_helper(&mut 0, chromosome.as_ref())
     }
 }
@@ -91,9 +91,9 @@ mod tests {
                 let x = x as f64;
                 (x, x * x + 2.0)
             })
-            .collect();
-        let mut ge: GE<f64, f64, Expr> = GE::new(100, (0.5, 0.5, 0.0), 2, 10, 1000, 4, 10, train);
-        let expr = Expr::generate(ge.start());
+            .collect::<Vec<_>>();
+        let mut ge: GE<f64, f64, Expr> = GE::new(100, (0.5, 0.5, 0.0), 2, 10, 1000, 4, 1, &train);
+        let expr = Expr::generate(&ge.start());
         dbg!(expr.run(&1.0));
     }
 }

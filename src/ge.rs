@@ -5,7 +5,7 @@ use std::{collections::HashMap, marker::PhantomData};
 // my types
 type Chromosome = Vec<u8>;
 
-pub struct GE<I, O, G>
+pub struct GE<'a, I, O, G>
 where
     G: Grammer<Input = I, Output = O>,
     O: Distance,
@@ -17,12 +17,12 @@ where
     generations: usize,
     tournament: usize, // tournament size
     runs: usize,
-    train: Vec<(I, O)>,
+    train: &'a [(I, O)],
     population: Vec<Chromosome>,
     _grammer: PhantomData<G>,
 }
 
-impl<I, O, G> GE<I, O, G>
+impl<'a, I, O, G> GE<'a, I, O, G>
 where
     G: Grammer<Input = I, Output = O>,
     O: Distance,
@@ -35,7 +35,7 @@ where
         generations: usize,
         tournament: usize,
         runs: usize,
-        train: Vec<(I, O)>,
+        train: &'a [(I, O)],
     ) -> Self {
         assert!(min_len < max_len);
         assert!(weights.0 + weights.1 + weights.2 == 1.0);
@@ -81,10 +81,10 @@ where
     }
 
     // performs tournament selection on the population and returns the index of the chosen individual
-    fn tournament_selection<'a>(
-        &'a self,
-        cache: &mut HashMap<&'a Chromosome, f64>,
-    ) -> &'a Chromosome {
+    fn tournament_selection<'b>(
+        &'b self,
+        cache: &mut HashMap<&'b Chromosome, f64>,
+    ) -> &'b Chromosome {
         self.population
             .choose_multiple(&mut rand::thread_rng(), self.tournament)
             .max_by(|c1, c2| {
