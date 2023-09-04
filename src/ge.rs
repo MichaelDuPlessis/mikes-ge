@@ -87,7 +87,7 @@ where
     ) -> &'b Chromosome {
         self.population
             .choose_multiple(&mut rand::thread_rng(), self.tournament)
-            .max_by(|c1, c2| {
+            .min_by(|c1, c2| {
                 let f1 = if let Some(f) = cache.get(c1) {
                     *f
                 } else {
