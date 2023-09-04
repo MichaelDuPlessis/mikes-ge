@@ -204,7 +204,7 @@ where
         let best = self
             .population
             .iter()
-            .max_by(|x, y| self.raw_fitness(x).total_cmp(&self.raw_fitness(y)))
+            .min_by(|x, y| self.raw_fitness(x).total_cmp(&self.raw_fitness(y)))
             .unwrap();
 
         best.clone()
