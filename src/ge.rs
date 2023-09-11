@@ -71,7 +71,6 @@ where
 
     // ====================================================================
     // everything for creating a new population
-
     fn raw_fitness(&self, chromosome: &Chromosome) -> f64 {
         let individual = G::generate(chromosome);
         self.train
