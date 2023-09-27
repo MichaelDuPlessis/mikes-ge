@@ -188,16 +188,10 @@ where
     }
 
     pub fn start(&mut self) -> Chromosome {
-        for _r in 0..self.runs {
-            // set seed here
+        self.generate_initial_population();
 
-            self.generate_initial_population();
-
-            // println!("{:?}", self.population);
-
-            for _g in 0..self.generations {
-                self.generate_next_population();
-            }
+        for _g in 0..self.generations {
+            self.generate_next_population();
         }
 
         let best = self
