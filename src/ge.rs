@@ -1,4 +1,4 @@
-use crate::grammer::{Distance, Grammer};
+use crate::grammar::{Distance, Grammar};
 use rand::{self, seq::SliceRandom, Rng};
 use std::{collections::HashMap, marker::PhantomData};
 
@@ -7,7 +7,7 @@ type Chromosome = Vec<u8>;
 
 pub struct GE<'a, I, O, G>
 where
-    G: Grammer<Input = I, Output = O>,
+    G: Grammar<Input = I, Output = O>,
     O: Distance,
 {
     size: usize,
@@ -24,7 +24,7 @@ where
 
 impl<'a, I, O, G> GE<'a, I, O, G>
 where
-    G: Grammer<Input = I, Output = O>,
+    G: Grammar<Input = I, Output = O>,
     O: Distance,
 {
     pub fn new(
