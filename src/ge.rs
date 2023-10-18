@@ -188,6 +188,7 @@ where
     }
 
     pub fn start(&mut self) -> Chromosome {
+        let mut results = Vec::with_capacity(self.runs);
         for _r in 0..self.runs {
             // set seed here
 
@@ -198,14 +199,20 @@ where
             for _g in 0..self.generations {
                 self.generate_next_population();
             }
+            let best = self
+                .population
+                .iter()
+                .min_by(|x, y| self.raw_fitness(x).total_cmp(&self.raw_fitness(y)))
+                .unwrap()
+                .clone();
+            results.push(best)
         }
 
-        let best = self
-            .population
-            .iter()
+        let best = results
+            .into_iter()
             .min_by(|x, y| self.raw_fitness(x).total_cmp(&self.raw_fitness(y)))
             .unwrap();
 
-        best.clone()
+        best
     }
 }
