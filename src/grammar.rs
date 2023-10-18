@@ -1,4 +1,4 @@
-pub trait Grammer {
+pub trait Grammar {
     type Input;
     // this means that the output must have some method that returns a float this is so that we are
     // able to determine how far it is from the goal

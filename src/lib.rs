@@ -1,7 +1,7 @@
 pub mod ge;
-pub mod grammer;
+pub mod grammar;
 
-use grammer::Grammer;
+use grammar::Grammar;
 
 #[derive(Debug)]
 enum Expr {
@@ -15,7 +15,7 @@ enum Expr {
     Five,
 }
 
-impl Grammer for Expr {
+impl Grammar for Expr {
     type Input = f64;
 
     type Output = f64;
